@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Znak marki: dwie strzałki synchronizacji wokół kłódki (108 dp, strefa bezpieczna 66 dp). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M31,54A23,23 0,0 1,71 38.5" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M77,29L78,47L61,43Z" />
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M77,54A23,23 0,0 1,37 69.5" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M31,79L30,61L47,65Z" />
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3"
+        android:pathData="M49,52V48.5A5,5 0,0 1,59 48.5V52" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M47,51H61A1.5,1.5 0,0 1,62.5 52.5V62.5A1.5,1.5 0,0 1,61 64H47A1.5,1.5 0,0 1,45.5 62.5V52.5A1.5,1.5 0,0 1,47 51Z" />
+</vector>
