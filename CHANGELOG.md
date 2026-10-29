@@ -1,6 +1,6 @@
 # Zmiany
 
-## Niewydane
+## 1.0.1
 
 - **Naprawiono** błąd SMB „Key.getEncoded() on null” (np. WD My Cloud): kryptografia przez BouncyCastle, podpisywanie tylko gdy serwer wymaga, puste konto = gość.
 - **Łączenie z NAS-em**: serwery w sieci wyszukiwane automatycznie, a udział i folder wybiera się w przeglądarce (z tworzeniem nowego folderu) zamiast wpisywać ścieżkę.
