@@ -96,6 +96,11 @@ dependencies {
 
     // Cele kopii: SMB 2/3 (NAS), SFTP, WebDAV.
     implementation("com.hierynomus:smbj:0.14.0")
+    // Lista udziałów SMB (SRVSVC przez DCE/RPC) – przeglądanie NAS-a zamiast wpisywania nazw.
+    implementation("com.rapid7.client:dcerpc:0.12.13") {
+        exclude(group = "com.hierynomus", module = "smbj")
+        exclude(group = "org.bouncycastle")
+    }
     implementation("com.hierynomus:sshj:0.39.0")
     implementation("org.bouncycastle:bcprov-jdk18on:1.80")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

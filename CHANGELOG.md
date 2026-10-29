@@ -1,5 +1,11 @@
 # Zmiany
 
+## Niewydane
+
+- **Naprawiono** błąd SMB „Key.getEncoded() on null” (np. WD My Cloud): kryptografia przez BouncyCastle, podpisywanie tylko gdy serwer wymaga, puste konto = gość.
+- **Łączenie z NAS-em**: serwery w sieci wyszukiwane automatycznie, a udział i folder wybiera się w przeglądarce (z tworzeniem nowego folderu) zamiast wpisywać ścieżkę.
+- **Prostsze ustawienia**: port, domena i Wake-on-LAN w opcjach zaawansowanych, nazwy miejsc i zadań uzupełniane automatycznie, rzadkie opcje zadania pod „Więcej opcji”, krótszy ekran ustawień.
+
 ## 1.0.0
 
 Pierwsze wydanie OpenSync: szyfrowane kopie zapasowe telefonu w sieci domowej, w stylu OpenPDF.

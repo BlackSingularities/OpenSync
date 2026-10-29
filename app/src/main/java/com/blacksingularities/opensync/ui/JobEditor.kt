@@ -101,6 +101,8 @@ fun JobEditor(vm: AppViewModel, jobId: String?) {
     var ssidText by remember(jobId) { mutableStateOf(job.conditions.homeSsids.joinToString(", ")) }
     var tagsText by remember(jobId) { mutableStateOf(job.tags.joinToString(", ")) }
     var error by remember { mutableStateOf<String?>(null) }
+    var more by remember(jobId) { mutableStateOf(false) }
+    var customRetention by remember(jobId) { mutableStateOf(RetentionPreset.entries.none { it.r == job.retention }) }
 
     val permLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { res ->
         if (res.values.any { !it }) vm.toast = "Bez uprawnień część danych nie zostanie skopiowana"
@@ -130,12 +132,11 @@ fun JobEditor(vm: AppViewModel, jobId: String?) {
         error = null
         val d = vm.store.destination(job.destinationId)
         when {
-            job.name.isBlank() -> { error = "Podaj nazwę zadania"; return }
             d == null -> { error = "Wybierz miejsce kopii"; return }
             job.sources.isEmpty() -> { error = "Zaznacz co najmniej jedno źródło"; return }
         }
         var final = job.copy(
-            name = job.name.trim(),
+            name = job.name.trim().ifEmpty { "Kopia telefonu" },
             repoPath = job.repoPath.trim().trim('/').ifEmpty { "OpenSync" },
             filters = job.filters.copy(exclude = excludeText.lines().map { it.trim() }.filter { it.isNotEmpty() }),
             conditions = job.conditions.copy(homeSsids = ssidText.split(',').map { it.trim() }.filter { it.isNotEmpty() }),
@@ -166,12 +167,11 @@ fun JobEditor(vm: AppViewModel, jobId: String?) {
         },
     ) {
         Section {
-            Field("Nazwa zadania", job.name, { job = job.copy(name = it) })
-            ToggleRow(Icons.Rounded.PowerSettingsNew, "Zadanie włączone", "Wyłączone nie uruchamia się według harmonogramu", job.enabled) { job = job.copy(enabled = it) }
+            Field("Nazwa zadania", job.name, { job = job.copy(name = it) }, placeholder = "Kopia telefonu")
         }
 
         // ---- Miejsce ----
-        Section("Dokąd", icon = Icons.Rounded.Inventory2, footer = "W tym folderze powstanie repozytorium. Kilka telefonów może używać tego samego folderu i hasła – wspólne pliki zapiszą się tylko raz.") {
+        Section("Dokąd", icon = Icons.Rounded.Inventory2, footer = "Kopie trafią do podfolderu „${job.repoPath.ifBlank { "OpenSync" }}”. Kilka telefonów może używać tego samego miejsca i hasła.") {
             destinations.forEachIndexed { i, d ->
                 if (i > 0) Divider()
                 ActionRow(
@@ -186,7 +186,7 @@ fun JobEditor(vm: AppViewModel, jobId: String?) {
             }
             if (destinations.isNotEmpty()) Divider()
             ActionRow(Icons.Rounded.AddCircleOutline, "Dodaj nowe miejsce") { vm.go(Screen.EditDestination(null)) }
-            Field("Folder repozytorium", job.repoPath, { job = job.copy(repoPath = it) }, placeholder = "OpenSync")
+            if (more) Field("Folder repozytorium", job.repoPath, { job = job.copy(repoPath = it) }, placeholder = "OpenSync")
         }
 
         // ---- Szyfrowanie ----
@@ -257,6 +257,7 @@ fun JobEditor(vm: AppViewModel, jobId: String?) {
         Section("Warunki", icon = Icons.Rounded.Wifi) {
             ToggleRow(Icons.Rounded.Wifi, "Tylko Wi-Fi / sieć bez limitu", null, c.unmeteredOnly) { job = job.copy(conditions = c.copy(unmeteredOnly = it)) }
             ToggleRow(Icons.Rounded.BatteryChargingFull, "Tylko podczas ładowania", null, c.chargingOnly) { job = job.copy(conditions = c.copy(chargingOnly = it)) }
+            if (more) {
             ToggleRow(Icons.Rounded.BatteryStd, "Nie przy niskiej baterii", null, c.batteryNotLow) { job = job.copy(conditions = c.copy(batteryNotLow = it)) }
             ToggleRow(Icons.Rounded.Bedtime, "Gdy telefon nie jest używany", "Najlepiej w nocy, razem z ładowaniem", c.idleOnly) { job = job.copy(conditions = c.copy(idleOnly = it)) }
             ToggleRow(Icons.Rounded.Refresh, "Ponawiaj, gdy NAS jest niedostępny", "Np. poza domem – kopia wykona się po powrocie", c.retryWhenUnreachable) { job = job.copy(conditions = c.copy(retryWhenUnreachable = it)) }
@@ -269,6 +270,7 @@ fun JobEditor(vm: AppViewModel, jobId: String?) {
                     locationLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
             }
+            }
         }
 
         // ---- Retencja ----
@@ -276,9 +278,11 @@ fun JobEditor(vm: AppViewModel, jobId: String?) {
         Section("Ile kopii trzymać", icon = Icons.Rounded.Inventory2, footer = "Kopia zostaje, jeśli spełnia którąkolwiek regułę. Najnowsza i przypięte zostają zawsze. Teraz: ${r.describe()}.") {
             ToggleRow(null, "Usuwaj nadmiarowe kopie", "Wyłączone = wszystkie wersje zostają na zawsze", r.enabled) { job = job.copy(retention = r.copy(enabled = it)) }
             if (r.enabled) {
-                ChoiceChips(RetentionPreset.entries + listOf<RetentionPreset?>(null), RetentionPreset.entries.firstOrNull { it.r == r }, { it?.label ?: "Własne" }) { p ->
+                ChoiceChips(RetentionPreset.entries + listOf<RetentionPreset?>(null), if (customRetention) null else RetentionPreset.entries.firstOrNull { it.r == r }, { it?.label ?: "Własne" }) { p ->
+                    customRetention = p == null
                     if (p != null) job = job.copy(retention = p.r)
                 }
+                if (customRetention) {
                 StepperRow("Ostatnie kopie", "Liczba najnowszych", r.keepLast, 0..100) { job = job.copy(retention = r.copy(keepLast = it)) }
                 StepperRow("Godzinowe", "Po jednej z każdej godziny", r.keepHourly, 0..168) { job = job.copy(retention = r.copy(keepHourly = it)) }
                 StepperRow("Dzienne", "Po jednej z każdego dnia", r.keepDaily, 0..365) { job = job.copy(retention = r.copy(keepDaily = it)) }
@@ -286,9 +290,15 @@ fun JobEditor(vm: AppViewModel, jobId: String?) {
                 StepperRow("Miesięczne", null, r.keepMonthly, 0..240) { job = job.copy(retention = r.copy(keepMonthly = it)) }
                 StepperRow("Roczne", null, r.keepYearly, 0..50) { job = job.copy(retention = r.copy(keepYearly = it)) }
                 StepperRow("Wszystkie z ostatnich dni", null, r.keepWithinDays, 0..365) { job = job.copy(retention = r.copy(keepWithinDays = it)) }
+                }
             }
         }
 
+        Section {
+            ActionRow(Icons.Rounded.Tune, if (more) "Mniej opcji" else "Więcej opcji", if (more) null else "Filtry, kompresja, weryfikacja, folder repozytorium – domyślne ustawienia są dobre") { more = !more }
+        }
+
+        if (more) {
         // ---- Filtry ----
         val f = job.filters
         Section("Filtry", icon = Icons.Rounded.FilterAlt) {
@@ -315,6 +325,8 @@ fun JobEditor(vm: AppViewModel, jobId: String?) {
             }
             ToggleRow(Icons.Rounded.NotificationsActive, "Powiadamiaj o udanej kopii", "Błędy są zgłaszane zawsze", job.notifySuccess) { job = job.copy(notifySuccess = it) }
             Field("Etykiety (po przecinku)", tagsText, { tagsText = it }, placeholder = "np. telefon-adama", keyboard = KeyboardType.Text)
+            ToggleRow(Icons.Rounded.PowerSettingsNew, "Zadanie włączone", "Wyłączone nie uruchamia się według harmonogramu", job.enabled) { job = job.copy(enabled = it) }
+        }
         }
 
         if (original != null) {

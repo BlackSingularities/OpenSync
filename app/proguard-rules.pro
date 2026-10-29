@@ -3,6 +3,7 @@
 
 # SMB (smbj + mbassador), SFTP (sshj) i BouncyCastle korzystają z refleksji i dostawców JCA.
 -keep class com.hierynomus.** { *; }
+-keep class com.rapid7.client.dcerpc.** { *; }
 -keep class net.schmizz.** { *; }
 -keep class net.engio.mbassy.** { *; }
 -keep class org.bouncycastle.** { *; }
@@ -22,3 +23,10 @@
 -dontwarn com.jcraft.jzlib.**
 -dontwarn org.conscrypt.**
 -dontwarn org.openjsse.**
+-dontwarn com.rapid7.**
+-dontwarn com.google.common.**
+-dontwarn com.google.errorprone.**
+-dontwarn com.google.j2objc.**
+-dontwarn org.checkerframework.**
+-dontwarn javax.annotation.**
+-dontwarn org.apache.commons.**

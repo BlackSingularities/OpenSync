@@ -139,36 +139,13 @@ fun SettingsScreen(vm: AppViewModel) {
 
     ScreenScaffold("Ustawienia", { vm.store.deviceName = deviceName; vm.back() }) {
         UpdateBanner(vm)
-        Section("Urządzenie", icon = Icons.Rounded.PhoneAndroid, footer = "Nazwa widoczna przy kopiach – przydatna, gdy kilka telefonów zapisuje do jednego repozytorium.") {
-            Field("Nazwa urządzenia", deviceName, { deviceName = it; vm.store.deviceName = it })
-        }
-        Section("Powiadomienia i praca w tle", icon = Icons.Rounded.NotificationsActive) {
-            ToggleRow(Icons.Rounded.NotificationsActive, "Powiadamiaj o błędach", "Nieudana kopia lub weryfikacja", notifyFailures) { notifyFailures = it; vm.store.notifyFailures = it }
-            Divider()
-            ActionRow(Icons.Rounded.BatteryAlert, "Optymalizacja baterii", "Wyłącz dla OpenSync, aby zaplanowane kopie nie były wstrzymywane") {
-                runCatching { context.startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + context.packageName))) }
-                    .onFailure { runCatching { context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) } }
-            }
-            Divider()
-            ActionRow(Icons.Rounded.AppSettingsAlt, "Uprawnienia aplikacji", "SMS, kontakty, kalendarz, multimedia, lokalizacja") {
-                runCatching { context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + context.packageName))) }
-            }
-        }
-        Section("Przeniesienie ustawień", icon = Icons.Rounded.Upload, footer = "Plik zawiera zadania i miejsca kopii, bez haseł. Na nowym telefonie wczytaj go i wpisz hasła ponownie.") {
-            ActionRow(Icons.Rounded.Upload, "Eksportuj ustawienia") { exportLauncher.launch("opensync-ustawienia.json") }
-            Divider()
-            ActionRow(Icons.Rounded.Download, "Importuj ustawienia") { importLauncher.launch(arrayOf("application/json", "text/plain", "*/*")) }
-        }
-        Section("Bezpieczeństwo", icon = Icons.Rounded.Shield) {
-            ActionRow(Icons.Rounded.Shield, "Szyfrowanie po stronie telefonu", "AES-256-GCM · PBKDF2-HMAC-SHA256, 600 000 iteracji · identyfikatory HMAC-SHA256 · hasła do serwerów w Android Keystore")
-            Divider()
-            ActionRow(Icons.Rounded.Laptop, "Odzyskiwanie bez telefonu", "Do każdego wydania dołączony jest plik opensync-restore.py – odczyta kopię na komputerze (Python 3 + pakiet cryptography) z dysku NAS.")
-        }
-        Section("Aktualizacje", icon = Icons.Rounded.SystemUpdate) {
-            ToggleRow(Icons.Rounded.Update, "Sprawdzaj przy starcie", null, autoUpdate) { autoUpdate = it; vm.store.autoUpdateCheck = it }
+        Section("Ogólne", icon = Icons.Rounded.PhoneAndroid) {
+            Field("Nazwa telefonu", deviceName, { deviceName = it; vm.store.deviceName = it }, supporting = "Widoczna przy kopiach, gdy kilka telefonów zapisuje w jednym miejscu")
+            ToggleRow(Icons.Rounded.NotificationsActive, "Powiadamiaj o błędach", null, notifyFailures) { notifyFailures = it; vm.store.notifyFailures = it }
+            ToggleRow(Icons.Rounded.Update, "Automatyczne aktualizacje", null, autoUpdate) { autoUpdate = it; vm.store.autoUpdateCheck = it }
             Divider()
             ActionRow(
-                Icons.Rounded.SystemUpdate, "Sprawdź teraz",
+                Icons.Rounded.SystemUpdate, "Sprawdź aktualizacje",
                 when (val u = vm.update) {
                     UpdateState.Checking -> "Sprawdzanie…"
                     UpdateState.UpToDate -> "Masz najnowszą wersję ${BuildConfig.VERSION_NAME}"
@@ -178,6 +155,22 @@ fun SettingsScreen(vm: AppViewModel) {
                 },
             ) { vm.checkUpdate(silent = false) }
         }
+        Section("Telefon", icon = Icons.Rounded.BatteryAlert) {
+            ActionRow(Icons.Rounded.BatteryAlert, "Praca w tle", "Wyłącz optymalizację baterii, aby kopie startowały o czasie") {
+                runCatching { context.startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + context.packageName))) }
+                    .onFailure { runCatching { context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) } }
+            }
+            Divider()
+            ActionRow(Icons.Rounded.AppSettingsAlt, "Uprawnienia", "Aplikacja sama poprosi o potrzebne przy zapisie zadania") {
+                runCatching { context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + context.packageName))) }
+            }
+        }
+        Section("Nowy telefon", icon = Icons.Rounded.Upload, footer = "Plik zawiera zadania i miejsca, bez haseł.") {
+            ActionRow(Icons.Rounded.Upload, "Eksportuj ustawienia") { exportLauncher.launch("opensync-ustawienia.json") }
+            Divider()
+            ActionRow(Icons.Rounded.Download, "Importuj ustawienia") { importLauncher.launch(arrayOf("application/json", "text/plain", "*/*")) }
+        }
+        Hint("Dane są szyfrowane w telefonie (AES-256-GCM, klucz z hasła przez PBKDF2), a hasła do serwerów leżą w Android Keystore. Kopię odczytasz też na komputerze skryptem opensync-restore.py z każdego wydania.")
         About(BuildConfig.VERSION_NAME)
     }
 }

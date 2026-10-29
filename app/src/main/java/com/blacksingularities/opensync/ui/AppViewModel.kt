@@ -14,6 +14,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.blacksingularities.opensync.backend.Backends
 import com.blacksingularities.opensync.backend.SftpBackend
+import com.blacksingularities.opensync.backend.SmbBrowser
 import com.blacksingularities.opensync.backend.WakeOnLan
 import com.blacksingularities.opensync.data.DestType
 import com.blacksingularities.opensync.data.Destination
@@ -134,6 +135,44 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             val r = runCatching { WakeOnLan.send(d.wolMac, d.wolBroadcast.ifBlank { RepoSession.broadcastAddress(ctx) }) }
             withContext(Dispatchers.Main) { toast = r.fold({ "Wysłano pakiet Wake-on-LAN" }, { friendly(it) }) }
+        }
+    }
+
+    // ---- Przeglądanie NAS-a (SMB) --------------------------------------------------------
+    /** Stan przeglądarki: [share] pusty = lista udziałów, inaczej foldery w [path]. */
+    data class SmbBrowse(val share: String = "", val path: String = "", val items: List<String> = emptyList(), val loading: Boolean = true, val error: String? = null)
+
+    var smbBrowse by mutableStateOf<SmbBrowse?>(null)
+
+    private fun smbArgs(d: Destination) = arrayOf(d.host.trim(), Secrets.reveal(d.password))
+
+    /** Łączy się z serwerem i pokazuje [share]/[path] (pusty udział = lista udziałów). */
+    fun smbOpen(d: Destination, share: String, path: String) {
+        smbBrowse = SmbBrowse(share, path, loading = true)
+        viewModelScope.launch {
+            val (host, password) = smbArgs(d)
+            val r = withContext(Dispatchers.IO) {
+                runCatching {
+                    RepoSession.ensureReachable(ctx, d) {}
+                    if (share.isEmpty()) SmbBrowser.shares(host, d.effectivePort, d.user.trim(), password, d.domain.trim())
+                    else SmbBrowser.folders(host, d.effectivePort, d.user.trim(), password, d.domain.trim(), share, path)
+                }
+            }
+            if (smbBrowse == null) return@launch
+            smbBrowse = r.fold({ SmbBrowse(share, path, it, false) }, { SmbBrowse(share, path, emptyList(), false, friendly(it)) })
+        }
+    }
+
+    fun smbMkdir(d: Destination, name: String) {
+        val b = smbBrowse ?: return
+        val clean = name.trim().replace(Regex("[\\\\/:*?\"<>|]"), "_")
+        if (clean.isEmpty() || b.share.isEmpty()) return
+        val target = listOf(b.path.trim('/'), clean).filter { it.isNotEmpty() }.joinToString("/")
+        viewModelScope.launch {
+            val (host, password) = smbArgs(d)
+            withContext(Dispatchers.IO) { runCatching { SmbBrowser.mkdir(host, d.effectivePort, d.user.trim(), password, d.domain.trim(), b.share, target) } }
+                .onSuccess { smbOpen(d, b.share, target) }
+                .onFailure { toast = friendly(it) }
         }
     }
 
