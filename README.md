@@ -1,5 +1,7 @@
 # OpenSync
 
+<img src="artwork/app-icon.png" alt="OpenSync" width="128" />
+
 **Szyfrowane kopie zapasowe telefonu w sieci domowej.** Interfejs jest czarno-biały, w stylu OpenPDF, bez reklam i śledzenia. Telefon szyfruje dane, zanim wyśle je na NAS, serwer albo dysk USB. Kolejne kopie wysyłają tylko zmiany, a liczbę przechowywanych wersji ustalasz sam.
 
 [![Build & Release](../../actions/workflows/android.yml/badge.svg)](../../actions/workflows/android.yml)
