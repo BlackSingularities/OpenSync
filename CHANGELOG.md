@@ -1,5 +1,10 @@
 # Zmiany
 
+## 1.0.3
+
+- Dopasowane kolorystycznie tła ikon aplikacji i spójne zasoby graficzne.
+- Nowa ikona aplikacji, warianty systemowe i odświeżona grafika na stronie projektu.
+
 ## 1.0.1
 
 - **Naprawiono** błąd SMB „Key.getEncoded() on null” (np. WD My Cloud): kryptografia przez BouncyCastle, podpisywanie tylko gdy serwer wymaga, puste konto = gość.
