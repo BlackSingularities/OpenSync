@@ -41,10 +41,10 @@ fun parseRelease(json: String): ReleaseInfo {
     if (url.isEmpty()) error("Wydanie nie zawiera pliku APK")
     return ReleaseInfo(
         version = o.optString("tag_name").removePrefix("v"),
-        notes = o.optString("body").substringBefore("\n---").trim(),
+        notes = "",
         assetUrl = url,
         sizeBytes = size,
-        pageUrl = o.optString("html_url"),
+        pageUrl = "",
     )
 }
 

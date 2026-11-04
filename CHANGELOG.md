@@ -1,5 +1,9 @@
 # Zmiany
 
+## 1.0.4
+
+- Komunikat o nowej wersji bez listy zmian, linków i informacji, skąd pobierana jest aktualizacja.
+
 ## 1.0.3
 
 - Dopasowane kolorystycznie tła ikon aplikacji i spójne zasoby graficzne.

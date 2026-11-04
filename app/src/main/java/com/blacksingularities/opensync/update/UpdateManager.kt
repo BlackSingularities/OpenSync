@@ -77,7 +77,7 @@ object UpdateManager {
             when (conn.responseCode) {
                 200 -> return conn.inputStream.bufferedReader().use { it.readText() }
                 404 -> error("Brak opublikowanych wydań")
-                403 -> error("Limit zapytań GitHub – spróbuj później")
+                403 -> error("Limit zapytań serwera aktualizacji – spróbuj później")
                 else -> error("Serwer odpowiedział kodem ${conn.responseCode}")
             }
         } finally {
