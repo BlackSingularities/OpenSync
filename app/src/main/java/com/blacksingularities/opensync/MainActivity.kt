@@ -1,5 +1,7 @@
 package com.blacksingularities.opensync
 
+import com.blacksingularities.opensync.feedback.Feedback
+import com.blacksingularities.opensync.feedback.CrashReportPrompt
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -16,11 +18,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Feedback.install(this, "opensync")
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
         )
         UpdateManager.clearUpdatedNotification(this)
-        setContent { OpenSyncTheme { AppRoot(vm) } }
+        setContent { OpenSyncTheme { CrashReportPrompt(); AppRoot(vm) } }
     }
 }

@@ -424,6 +424,15 @@ fun About(version: String) {
                 .clickable { runCatching { uri.openUri("mailto:kontakt@redzikowski.com") } }
                 .padding(horizontal = 8.dp, vertical = 4.dp),
         )
+        com.blacksingularities.opensync.feedback.FeedbackEntry { open ->
+            Text(
+                com.blacksingularities.opensync.feedback.FeedbackText.entryTitle,
+                fontSize = 12.sp, color = Palette.TextDim,
+                modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                    .clickable { open() }
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+            )
+        }
         Text(
             "☕  Postaw kawę", fontSize = 13.sp, color = Palette.Ink, fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(top = 8.dp).clip(RoundedCornerShape(50)).background(Color.White)
