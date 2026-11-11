@@ -1,0 +1,23 @@
+{
+  "slug": "opensync",
+  "name": "OpenSync",
+  "label": "szyfrowane kopie telefonu w domowej sieci",
+  "icon": "icon.png",
+  "url": "https://redzikowski.com/portfolio/opensync",
+  "posters": [
+    {
+      "platform": "android",
+      "file": "android.png",
+      "title": "Kopia telefonu, *której nikt nie przeczyta*",
+      "lead": "Zdjęcia, SMS-y, kontakty i muzyka trafiają na Twój NAS, serwer albo dysk USB – zaszyfrowane w telefonie, zanim opuszczą urządzenie.",
+      "shots": [
+        { "src": "../screenshots/android/01-start.png", "caption": "Zadania" },
+        { "src": "../screenshots/android/02-zadanie.png", "caption": "Co kopiować" },
+        { "src": "../screenshots/android/03-kopie.png", "caption": "Wersje" },
+        { "src": "../screenshots/android/04-przywracanie.png", "caption": "Przywracanie" }
+      ],
+      "features": ["SMB, SFTP, WebDAV i USB", "AES-256-GCM w telefonie", "deduplikacja", "harmonogram z warunkami", "Wake-on-LAN", "przywracanie pojedynczych plików"],
+      "meta": "Android 10 lub nowszy"
+    }
+  ]
+}
